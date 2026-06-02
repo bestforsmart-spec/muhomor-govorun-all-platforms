@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var text = ""
     @State private var showingSettings = false
     @State private var keyboardLift: CGFloat = 0
+    @FocusState private var isComposerFocused: Bool
     private var isTextEmpty: Bool {
         text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -23,7 +24,7 @@ struct ContentView: View {
 
                     ThemeBanner()
 
-                    ComposerCard(text: $text)
+                    ComposerCard(text: $text, isFocused: $isComposerFocused)
                         .frame(maxHeight: .infinity)
 
                     Spacer(minLength: 0)
@@ -56,6 +57,18 @@ struct ContentView: View {
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
                 withAnimation(.easeOut(duration: 0.20)) {
                     keyboardLift = 0
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+
+                    Button {
+                        isComposerFocused = false
+                    } label: {
+                        Label("Свернуть", systemImage: "keyboard.chevron.compact.down")
+                    }
+                    .font(.subheadline.weight(.semibold))
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -214,6 +227,7 @@ private struct ThemeBanner: View {
 private struct ComposerCard: View {
     @Environment(\.colorScheme) private var colorScheme
     @Binding var text: String
+    let isFocused: FocusState<Bool>.Binding
 
     var body: some View {
         let palette = ShromPalette(colorScheme)
@@ -235,6 +249,7 @@ private struct ComposerCard: View {
                 TextEditor(text: $text)
                     .font(.body)
                     .scrollContentBackground(.hidden)
+                    .focused(isFocused)
                     .frame(minHeight: 260, maxHeight: .infinity)
                     .padding(.horizontal, -4)
                     .padding(.vertical, -8)
