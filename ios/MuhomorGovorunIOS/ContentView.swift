@@ -6,7 +6,7 @@ struct ContentView: View {
     @Environment(TTSService.self) private var ttsService
     @State private var text = ""
     @State private var showingSettings = false
-    @State private var keyboardLift: CGFloat = 0
+    @State private var isKeyboardVisible = false
     @FocusState private var isComposerFocused: Bool
     private var isTextEmpty: Bool {
         text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -34,32 +34,63 @@ struct ContentView: View {
                 .padding(.bottom, 8)
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                BottomControlDock(
-                    status: ttsService.status,
-                    keyboardLift: keyboardLift,
-                    isTextEmpty: isTextEmpty,
-                    paste: {
-                        text = UIPasteboard.general.string ?? text
-                    },
-                    speak: {
-                        ttsService.speakLocal(text: text, config: config)
-                    },
-                    stop: {
-                        ttsService.stop()
-                    },
-                    dismissKeyboard: {
-                        isComposerFocused = false
-                    }
-                )
+                if !isKeyboardVisible {
+                    BottomControlDock(
+                        status: ttsService.status,
+                        isTextEmpty: isTextEmpty,
+                        paste: {
+                            text = UIPasteboard.general.string ?? text
+                        },
+                        speak: {
+                            ttsService.speakLocal(text: text, config: config)
+                        },
+                        stop: {
+                            ttsService.stop()
+                        }
+                    )
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
                 withAnimation(.easeOut(duration: 0.22)) {
-                    keyboardLift = 92
+                    isKeyboardVisible = true
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
                 withAnimation(.easeOut(duration: 0.20)) {
-                    keyboardLift = 0
+                    isKeyboardVisible = false
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Button {
+                        text = UIPasteboard.general.string ?? text
+                    } label: {
+                        Image(systemName: "doc.on.clipboard")
+                    }
+                    .accessibilityLabel("Буфер")
+
+                    Spacer()
+
+                    Button {
+                        ttsService.speakLocal(text: text, config: config)
+                    } label: {
+                        Label("Озвучить", systemImage: "speaker.wave.2.fill")
+                    }
+                    .disabled(isTextEmpty)
+
+                    Button {
+                        ttsService.stop()
+                    } label: {
+                        Image(systemName: "stop.fill")
+                    }
+                    .accessibilityLabel("Стоп")
+
+                    Button {
+                        isComposerFocused = false
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                    }
+                    .accessibilityLabel("Свернуть клавиатуру")
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -267,22 +298,15 @@ private struct ComposerCard: View {
 private struct BottomControlDock: View {
     @Environment(\.colorScheme) private var colorScheme
     let status: String
-    let keyboardLift: CGFloat
     let isTextEmpty: Bool
     let paste: () -> Void
     let speak: () -> Void
     let stop: () -> Void
-    let dismissKeyboard: () -> Void
 
     var body: some View {
         let palette = ShromPalette(colorScheme)
-        let isKeyboardVisible = keyboardLift > 0
 
         VStack(spacing: 10) {
-            if isKeyboardVisible {
-                KeyboardDismissChip(action: dismissKeyboard)
-            }
-
             ActionBar(
                 isTextEmpty: isTextEmpty,
                 paste: paste,
@@ -290,46 +314,16 @@ private struct BottomControlDock: View {
                 stop: stop
             )
 
-            if !isKeyboardVisible {
-                StatusPill(status: status)
-            }
+            StatusPill(status: status)
         }
         .padding(.horizontal, 18)
         .padding(.top, 10)
-        .padding(.bottom, isKeyboardVisible ? keyboardLift : 8)
+        .padding(.bottom, 8)
         .background(.ultraThinMaterial)
         .overlay(alignment: .top) {
             Rectangle()
                 .fill(palette.stroke)
                 .frame(height: 1)
-        }
-    }
-}
-
-private struct KeyboardDismissChip: View {
-    @Environment(\.colorScheme) private var colorScheme
-    let action: () -> Void
-
-    var body: some View {
-        let palette = ShromPalette(colorScheme)
-
-        HStack {
-            Spacer()
-
-            Button(action: action) {
-                Label("Свернуть", systemImage: "keyboard.chevron.compact.down")
-                    .font(.caption.weight(.semibold))
-                    .lineLimit(1)
-                    .foregroundStyle(palette.secondaryButtonText)
-                    .padding(.horizontal, 12)
-                    .frame(height: 34)
-            }
-            .background(palette.cardStrong, in: Capsule())
-            .overlay {
-                Capsule()
-                    .stroke(palette.subtleStroke, lineWidth: 1)
-            }
-            .accessibilityLabel("Свернуть клавиатуру")
         }
     }
 }
