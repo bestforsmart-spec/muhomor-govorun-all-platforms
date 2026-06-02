@@ -10,8 +10,22 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 14) {
-                Text("Локальная озвучка iPhone")
-                    .font(.headline)
+                HStack(alignment: .center, spacing: 12) {
+                    Image("MuhomorShield")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Локальная озвучка iPhone")
+                            .font(.headline)
+
+                        Text("Мухомор с щитом говорит офлайн")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
                 TextEditor(text: $text)
                     .font(.body)
