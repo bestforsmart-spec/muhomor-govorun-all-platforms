@@ -1,0 +1,7 @@
+brew "ffmpeg"
+brew "git"
+brew "jq"
+brew "libsndfile"
+brew "node"
+brew "python@3.11"
+cask "hammerspoon"

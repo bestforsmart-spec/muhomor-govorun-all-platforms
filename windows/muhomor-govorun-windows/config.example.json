@@ -1,0 +1,24 @@
+{
+  "tts_backend": "local_fast",
+  "local": {
+    "voice": "",
+    "rate": 0,
+    "volume": 100
+  },
+  "salute": {
+    "auth_key": "",
+    "scope": "SALUTE_SPEECH_PERS",
+    "voice": "Ost_24000",
+    "format": "wav16",
+    "curl_insecure": false
+  },
+  "elevenlabs": {
+    "api_key": "",
+    "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+    "model_id": "eleven_multilingual_v2",
+    "output_format": "mp3_44100_128",
+    "stability": 0.48,
+    "similarity_boost": 0.78,
+    "style": 0.18
+  }
+}

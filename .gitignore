@@ -1,0 +1,17 @@
+.DS_Store
+*.xcuserstate
+xcuserdata/
+DerivedData/
+.gradle/
+build/
+captures/
+local.properties
+*.apk
+*.aab
+*.ipa
+*.env
+config.json
+*.keystore
+*.jks
+__pycache__/
+*.pyc
