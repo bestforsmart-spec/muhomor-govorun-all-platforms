@@ -1,4 +1,5 @@
 import AVFoundation
+import NaturalLanguage
 import UIKit
 import UniformTypeIdentifiers
 
@@ -118,7 +119,7 @@ final class ShareViewController: UIViewController {
             return
         }
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "ru-RU")
+        utterance.voice = Self.voice(for: text)
         utterance.rate = 0.49
         statusLabel.text = "Озвучиваю локально"
         synth.speak(utterance)
@@ -138,5 +139,37 @@ final class ShareViewController: UIViewController {
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         try session.setActive(true)
+    }
+
+    private static func voice(for text: String) -> AVSpeechSynthesisVoice? {
+        let languageCode = detectedLanguageCode(from: text)
+        return voice(languageCode: languageCode) ?? AVSpeechSynthesisVoice(language: "ru-RU")
+    }
+
+    private static func detectedLanguageCode(from text: String) -> String {
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(text)
+
+        if let language = recognizer.dominantLanguage, language.rawValue != "und" {
+            return language.rawValue
+        }
+
+        if text.range(of: "\\p{Cyrillic}", options: .regularExpression) != nil {
+            return "ru"
+        }
+
+        if text.range(of: "\\p{Latin}", options: .regularExpression) != nil {
+            return "en"
+        }
+
+        return "ru"
+    }
+
+    private static func voice(languageCode: String) -> AVSpeechSynthesisVoice? {
+        let normalizedCode = languageCode.lowercased()
+        return AVSpeechSynthesisVoice.speechVoices().first { voice in
+            let language = voice.language.lowercased()
+            return language == normalizedCode || language.hasPrefix("\(normalizedCode)-")
+        }
     }
 }

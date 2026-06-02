@@ -27,16 +27,30 @@ struct SettingsView: View {
                                     .font(.headline)
 
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("Язык")
+                                    Text("Голос")
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.secondary)
 
-                                    TextField("ru-RU", text: $config.voiceLanguage)
-                                        .textInputAutocapitalization(.never)
-                                        .autocorrectionDisabled()
-                                        .padding(12)
-                                        .background(ShromPalette(colorScheme).field, in: RoundedRectangle(cornerRadius: 8))
+                                    Picker("Голос", selection: $config.voiceGender) {
+                                        ForEach(VoiceGender.allCases) { gender in
+                                            Text(gender.title)
+                                                .tag(gender)
+                                        }
+                                    }
+                                    .pickerStyle(.segmented)
                                 }
+
+                                HStack(spacing: 8) {
+                                    Image(systemName: "globe")
+                                        .font(.caption.weight(.semibold))
+
+                                    Text("Язык определяется автоматически")
+                                        .font(.caption.weight(.semibold))
+                                }
+                                .foregroundStyle(ShromPalette(colorScheme).secondaryText)
+                                .padding(12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(ShromPalette(colorScheme).field, in: RoundedRectangle(cornerRadius: 8))
 
                                 SettingSlider(
                                     title: "Скорость",
@@ -96,8 +110,8 @@ struct SettingsView: View {
             }
             .navigationTitle("Настройки")
             .navigationBarTitleDisplayMode(.inline)
-            .onChange(of: config.isDarkTheme) { _, _ in
-                config.save()
+            .onChange(of: config) { _, newValue in
+                newValue.save()
             }
             .toolbar {
                 Button("Готово") {
