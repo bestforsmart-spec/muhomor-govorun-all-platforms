@@ -23,27 +23,28 @@ struct ContentView: View {
                     ThemeBanner()
 
                     ComposerCard(text: $text)
-
-                    ActionBar(
-                        isTextEmpty: isTextEmpty,
-                        paste: {
-                            text = UIPasteboard.general.string ?? text
-                        },
-                        speak: {
-                            ttsService.speakLocal(text: text, config: config)
-                        },
-                        stop: {
-                            ttsService.stop()
-                        }
-                    )
-
-                    StatusPill(status: ttsService.status)
+                        .frame(maxHeight: .infinity)
 
                     Spacer(minLength: 0)
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 12)
-                .padding(.bottom, 18)
+                .padding(.bottom, 8)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                BottomControlDock(
+                    status: ttsService.status,
+                    isTextEmpty: isTextEmpty,
+                    paste: {
+                        text = UIPasteboard.general.string ?? text
+                    },
+                    speak: {
+                        ttsService.speakLocal(text: text, config: config)
+                    },
+                    stop: {
+                        ttsService.stop()
+                    }
+                )
             }
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingSettings) {
@@ -222,7 +223,7 @@ private struct ComposerCard: View {
                 TextEditor(text: $text)
                     .font(.body)
                     .scrollContentBackground(.hidden)
-                    .frame(minHeight: 396)
+                    .frame(minHeight: 260, maxHeight: .infinity)
                     .padding(.horizontal, -4)
                     .padding(.vertical, -8)
 
@@ -236,10 +237,44 @@ private struct ComposerCard: View {
             .foregroundStyle(palette.primaryText)
         }
         .padding(16)
+        .frame(maxHeight: .infinity)
         .background(palette.card, in: RoundedRectangle(cornerRadius: 8))
         .overlay {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(palette.stroke, lineWidth: 1)
+        }
+    }
+}
+
+private struct BottomControlDock: View {
+    @Environment(\.colorScheme) private var colorScheme
+    let status: String
+    let isTextEmpty: Bool
+    let paste: () -> Void
+    let speak: () -> Void
+    let stop: () -> Void
+
+    var body: some View {
+        let palette = ShromPalette(colorScheme)
+
+        VStack(spacing: 10) {
+            ActionBar(
+                isTextEmpty: isTextEmpty,
+                paste: paste,
+                speak: speak,
+                stop: stop
+            )
+
+            StatusPill(status: status)
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 10)
+        .padding(.bottom, 8)
+        .background(.ultraThinMaterial)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(palette.stroke)
+                .frame(height: 1)
         }
     }
 }
