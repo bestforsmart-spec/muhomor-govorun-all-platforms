@@ -9,6 +9,7 @@ struct MuhomorGovorunIOSApp: App {
         WindowGroup {
             ContentView(config: $config)
                 .environment(ttsService)
+                .preferredColorScheme(config.isDarkTheme ? .dark : .light)
         }
     }
 }

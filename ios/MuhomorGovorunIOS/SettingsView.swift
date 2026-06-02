@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var config: AppConfig
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(TTSService.self) private var ttsService
 
     var body: some View {
@@ -12,6 +13,14 @@ struct SettingsView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
+                        SettingsCard {
+                            Toggle(isOn: $config.isDarkTheme) {
+                                Label("Темная тема", systemImage: config.isDarkTheme ? "moon.fill" : "sun.max.fill")
+                                    .font(.headline)
+                            }
+                            .tint(ShromPalette(colorScheme).accent)
+                        }
+
                         SettingsCard {
                             VStack(alignment: .leading, spacing: 16) {
                                 Label("Локальный голос", systemImage: "waveform")
@@ -26,7 +35,7 @@ struct SettingsView: View {
                                         .textInputAutocapitalization(.never)
                                         .autocorrectionDisabled()
                                         .padding(12)
-                                        .background(Color.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8))
+                                        .background(ShromPalette(colorScheme).field, in: RoundedRectangle(cornerRadius: 8))
                                 }
 
                                 SettingSlider(
@@ -74,11 +83,11 @@ struct SettingsView: View {
                             Label {
                                 Text("Для офлайн-работы нужен установленный русский системный голос iOS. Если голос не скачан, iPhone может попросить загрузить его в настройках Accessibility/Spoken Content.")
                                     .font(.footnote)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(ShromPalette(colorScheme).secondaryText)
                                     .fixedSize(horizontal: false, vertical: true)
                             } icon: {
                                 Image(systemName: "info.circle.fill")
-                                    .foregroundStyle(Color(red: 0.58, green: 0.18, blue: 0.16))
+                                    .foregroundStyle(ShromPalette(colorScheme).accent)
                             }
                         }
                     }
@@ -87,6 +96,9 @@ struct SettingsView: View {
             }
             .navigationTitle("Настройки")
             .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: config.isDarkTheme) { _, _ in
+                config.save()
+            }
             .toolbar {
                 Button("Готово") {
                     config.save()
@@ -99,13 +111,13 @@ struct SettingsView: View {
 }
 
 private struct SettingsBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
+        let palette = ShromPalette(colorScheme)
+
         LinearGradient(
-            colors: [
-                Color(red: 0.98, green: 0.96, blue: 0.92),
-                Color(red: 0.91, green: 0.94, blue: 0.93),
-                Color(red: 0.96, green: 0.95, blue: 0.98)
-            ],
+            colors: palette.backgroundColors,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -114,6 +126,7 @@ private struct SettingsBackground: View {
 }
 
 private struct SettingsCard<Content: View>: View {
+    @Environment(\.colorScheme) private var colorScheme
     let content: Content
 
     init(@ViewBuilder content: () -> Content) {
@@ -121,53 +134,63 @@ private struct SettingsCard<Content: View>: View {
     }
 
     var body: some View {
+        let palette = ShromPalette(colorScheme)
+
         content
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.white.opacity(0.76), in: RoundedRectangle(cornerRadius: 8))
+            .foregroundStyle(palette.primaryText)
+            .background(palette.card, in: RoundedRectangle(cornerRadius: 8))
             .overlay {
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                    .stroke(palette.stroke, lineWidth: 1)
             }
     }
 }
 
 private struct SettingSlider: View {
+    @Environment(\.colorScheme) private var colorScheme
     let title: String
     @Binding var value: Double
     let range: ClosedRange<Double>
     let icon: String
 
     var body: some View {
+        let palette = ShromPalette(colorScheme)
+
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Label(title, systemImage: icon)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.secondaryText)
 
                 Spacer()
 
                 Text(value, format: .number.precision(.fractionLength(2)))
                     .font(.caption.monospacedDigit().weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.secondaryText)
             }
 
             Slider(value: $value, in: range)
-                .tint(Color(red: 0.58, green: 0.18, blue: 0.16))
+                .tint(palette.accent)
         }
     }
 }
 
 private struct SettingsPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeBody(configuration: Configuration) -> some View {
+        let palette = ShromPalette(colorScheme)
+
         configuration.label
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.82)
-            .foregroundStyle(.white)
+            .foregroundStyle(palette.primaryButtonText)
             .frame(maxWidth: .infinity, minHeight: 46)
             .background(
-                Color(red: 0.06, green: 0.08, blue: 0.09)
+                palette.primaryButton
                     .opacity(configuration.isPressed ? 0.82 : 1),
                 in: RoundedRectangle(cornerRadius: 8)
             )
@@ -175,20 +198,24 @@ private struct SettingsPrimaryButtonStyle: ButtonStyle {
 }
 
 private struct SettingsSecondaryButtonStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeBody(configuration: Configuration) -> some View {
+        let palette = ShromPalette(colorScheme)
+
         configuration.label
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.82)
-            .foregroundStyle(Color(red: 0.06, green: 0.08, blue: 0.09))
+            .foregroundStyle(palette.secondaryButtonText)
             .frame(maxWidth: .infinity, minHeight: 46)
             .background(
-                .white.opacity(configuration.isPressed ? 0.55 : 0.78),
+                palette.cardStrong.opacity(configuration.isPressed ? 0.72 : 1),
                 in: RoundedRectangle(cornerRadius: 8)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    .stroke(palette.subtleStroke, lineWidth: 1)
             }
     }
 }

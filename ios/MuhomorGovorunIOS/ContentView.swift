@@ -58,14 +58,85 @@ struct ContentView: View {
     }
 }
 
+struct ShromPalette {
+    let isDark: Bool
+
+    init(_ colorScheme: ColorScheme) {
+        isDark = colorScheme == .dark
+    }
+
+    var backgroundColors: [Color] {
+        if isDark {
+            return [
+                Color(red: 0.04, green: 0.04, blue: 0.05),
+                Color(red: 0.10, green: 0.07, blue: 0.08),
+                Color(red: 0.05, green: 0.09, blue: 0.09)
+            ]
+        }
+        return [
+            Color(red: 0.98, green: 0.96, blue: 0.92),
+            Color(red: 0.91, green: 0.94, blue: 0.93),
+            Color(red: 0.96, green: 0.95, blue: 0.98)
+        ]
+    }
+
+    var card: Color {
+        isDark ? Color.white.opacity(0.08) : Color.white.opacity(0.78)
+    }
+
+    var cardStrong: Color {
+        isDark ? Color.white.opacity(0.12) : Color.white.opacity(0.76)
+    }
+
+    var field: Color {
+        isDark ? Color.black.opacity(0.22) : Color.white.opacity(0.72)
+    }
+
+    var stroke: Color {
+        isDark ? Color.white.opacity(0.13) : Color.black.opacity(0.06)
+    }
+
+    var subtleStroke: Color {
+        isDark ? Color.white.opacity(0.16) : Color.black.opacity(0.08)
+    }
+
+    var primaryText: Color {
+        isDark ? Color(red: 0.98, green: 0.95, blue: 0.89) : Color(red: 0.06, green: 0.08, blue: 0.09)
+    }
+
+    var secondaryText: Color {
+        isDark ? Color(red: 0.74, green: 0.70, blue: 0.65) : Color.secondary
+    }
+
+    var accent: Color {
+        isDark ? Color(red: 0.92, green: 0.34, blue: 0.28) : Color(red: 0.58, green: 0.18, blue: 0.16)
+    }
+
+    var success: Color {
+        isDark ? Color(red: 0.32, green: 0.76, blue: 0.62) : Color(red: 0.13, green: 0.58, blue: 0.45)
+    }
+
+    var primaryButton: Color {
+        isDark ? Color(red: 0.92, green: 0.34, blue: 0.28) : Color(red: 0.06, green: 0.08, blue: 0.09)
+    }
+
+    var primaryButtonText: Color {
+        Color.white
+    }
+
+    var secondaryButtonText: Color {
+        primaryText
+    }
+}
+
 private struct PremiumBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
+        let palette = ShromPalette(colorScheme)
+
         LinearGradient(
-            colors: [
-                Color(red: 0.98, green: 0.96, blue: 0.92),
-                Color(red: 0.91, green: 0.94, blue: 0.93),
-                Color(red: 0.96, green: 0.95, blue: 0.98)
-            ],
+            colors: palette.backgroundColors,
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -74,7 +145,11 @@ private struct PremiumBackground: View {
 }
 
 private struct PremiumHeader: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
+        let palette = ShromPalette(colorScheme)
+
         HStack(alignment: .center, spacing: 16) {
             Image("MuhomorShield")
                 .resizable()
@@ -83,7 +158,7 @@ private struct PremiumHeader: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(.white.opacity(0.55), lineWidth: 1)
+                        .stroke(palette.subtleStroke, lineWidth: 1)
                 }
                 .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
                 .accessibilityHidden(true)
@@ -91,10 +166,11 @@ private struct PremiumHeader: View {
             VStack(alignment: .leading, spacing: 7) {
                 Text("ShromSpeak")
                     .font(.system(size: 28, weight: .semibold, design: .rounded))
+                    .foregroundStyle(palette.primaryText)
 
                 Text("Офлайн-голос для выделенного текста")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
 
                 HStack(spacing: 6) {
@@ -102,36 +178,40 @@ private struct PremiumHeader: View {
                     Text("Локально")
                 }
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(Color(red: 0.12, green: 0.36, blue: 0.32))
+                .foregroundStyle(palette.success)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(.white.opacity(0.7), in: Capsule())
+                .background(palette.cardStrong, in: Capsule())
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(14)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+        .background(palette.card, in: RoundedRectangle(cornerRadius: 8))
         .overlay {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(.white.opacity(0.55), lineWidth: 1)
+                .stroke(palette.stroke, lineWidth: 1)
         }
     }
 }
 
 private struct ComposerCard: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Binding var text: String
 
     var body: some View {
+        let palette = ShromPalette(colorScheme)
+
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label("Текст", systemImage: "text.alignleft")
                     .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(palette.primaryText)
 
                 Spacer()
 
                 Text("\(text.count)")
                     .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.secondaryText)
             }
 
             ZStack(alignment: .topLeading) {
@@ -144,17 +224,18 @@ private struct ComposerCard: View {
 
                 if text.isEmpty {
                     Text("Вставь или набери текст для озвучки")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.secondaryText)
                         .padding(.top, 2)
                         .allowsHitTesting(false)
                 }
             }
+            .foregroundStyle(palette.primaryText)
         }
         .padding(16)
-        .background(.white.opacity(0.78), in: RoundedRectangle(cornerRadius: 8))
+        .background(palette.card, in: RoundedRectangle(cornerRadius: 8))
         .overlay {
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                .stroke(palette.stroke, lineWidth: 1)
         }
     }
 }
@@ -187,37 +268,44 @@ private struct ActionBar: View {
 }
 
 private struct StatusPill: View {
+    @Environment(\.colorScheme) private var colorScheme
     let status: String
 
     var body: some View {
+        let palette = ShromPalette(colorScheme)
+
         HStack(spacing: 8) {
             Circle()
-                .fill(Color(red: 0.13, green: 0.58, blue: 0.45))
+                .fill(palette.success)
                 .frame(width: 7, height: 7)
 
             Text(status)
                 .font(.footnote.weight(.medium))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.secondaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(.white.opacity(0.58), in: Capsule())
+        .background(palette.cardStrong, in: Capsule())
     }
 }
 
 private struct PrimaryActionButtonStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeBody(configuration: Configuration) -> some View {
+        let palette = ShromPalette(colorScheme)
+
         configuration.label
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.8)
-            .foregroundStyle(.white)
+            .foregroundStyle(palette.primaryButtonText)
             .frame(maxWidth: .infinity, minHeight: 48)
             .background(
-                Color(red: 0.06, green: 0.08, blue: 0.09)
+                palette.primaryButton
                     .opacity(configuration.isPressed ? 0.82 : 1),
                 in: RoundedRectangle(cornerRadius: 8)
             )
@@ -225,20 +313,24 @@ private struct PrimaryActionButtonStyle: ButtonStyle {
 }
 
 private struct SecondaryActionButtonStyle: ButtonStyle {
+    @Environment(\.colorScheme) private var colorScheme
+
     func makeBody(configuration: Configuration) -> some View {
+        let palette = ShromPalette(colorScheme)
+
         configuration.label
             .font(.subheadline.weight(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.78)
-            .foregroundStyle(Color(red: 0.06, green: 0.08, blue: 0.09))
+            .foregroundStyle(palette.secondaryButtonText)
             .frame(maxWidth: .infinity, minHeight: 48)
             .background(
-                .white.opacity(configuration.isPressed ? 0.55 : 0.78),
+                palette.cardStrong.opacity(configuration.isPressed ? 0.72 : 1),
                 in: RoundedRectangle(cornerRadius: 8)
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.black.opacity(0.08), lineWidth: 1)
+                    .stroke(palette.subtleStroke, lineWidth: 1)
             }
     }
 }
