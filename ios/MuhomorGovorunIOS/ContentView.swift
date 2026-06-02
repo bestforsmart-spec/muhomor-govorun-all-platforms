@@ -10,21 +10,14 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 14) {
-                Picker("Голос", selection: $config.backend) {
-                    ForEach(VoiceBackend.allCases) { backend in
-                        Text(backend.title).tag(backend)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .onChange(of: config) { _, newValue in
-                    newValue.save()
-                }
+                Text("Локальная озвучка iPhone")
+                    .font(.headline)
 
                 TextEditor(text: $text)
                     .font(.body)
                     .overlay {
                         if text.isEmpty {
-                            Text("Вставьте текст или отправьте его сюда через буфер.")
+                            Text("Вставьте текст из буфера или используйте Поделиться -> Озвучить в другом приложении.")
                                 .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                                 .padding(.top, 8)
@@ -43,7 +36,7 @@ struct ContentView: View {
                     .buttonStyle(.bordered)
 
                     Button("Озвучить") {
-                        Task { await ttsService.speak(text: text, config: config) }
+                        ttsService.speakLocal(text: text, config: config)
                     }
                     .buttonStyle(.borderedProminent)
                     .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -57,6 +50,10 @@ struct ContentView: View {
                 Text(ttsService.status)
                     .foregroundStyle(.secondary)
                     .font(.footnote)
+
+                Text("Важно: iOS не разрешает стороннему приложению добавить кнопку прямо рядом с Copy/Paste во всех приложениях. Рабочий системный путь: выделить текст -> Поделиться -> Озвучить.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
             .padding()
             .navigationTitle("Мухомор - Говорун")

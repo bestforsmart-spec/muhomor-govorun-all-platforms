@@ -41,12 +41,12 @@ Native Android Java MVP:
 
 ## iOS
 
-SwiftUI MVP:
+SwiftUI local-only app + Share Extension:
 
 - local: `AVSpeechSynthesizer`;
-- SaluteSpeech: `URLSession`;
-- ElevenLabs: `URLSession`;
-- playback: `AVAudioPlayer`;
+- extension: `com.apple.share-services`, display name `Озвучить`;
+- input: selected/shared text from Share Sheet;
+- network: not used;
 - settings: `UserDefaults`.
 
 ## Безопасность ключей

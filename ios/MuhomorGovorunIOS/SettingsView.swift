@@ -7,16 +7,18 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("SaluteSpeech") {
-                    SecureField("Auth key", text: $config.saluteAuthKey)
-                    TextField("Scope", text: $config.saluteScope)
-                    TextField("Voice", text: $config.saluteVoice)
+                Section("Локальный голос") {
+                    TextField("Language", text: $config.voiceLanguage)
+                    Slider(value: $config.rate, in: 0.35...0.62) {
+                        Text("Скорость")
+                    }
+                    Slider(value: $config.pitch, in: 0.8...1.2) {
+                        Text("Тон")
+                    }
                 }
 
-                Section("ElevenLabs") {
-                    SecureField("API key", text: $config.elevenLabsApiKey)
-                    TextField("Voice ID", text: $config.elevenLabsVoiceId)
-                    TextField("Model ID", text: $config.elevenLabsModelId)
+                Section {
+                    Text("Для офлайн-работы нужен установленный русский системный голос iOS. Если голос не скачан, iPhone может попросить загрузить его в настройках Accessibility/Spoken Content.")
                 }
             }
             .navigationTitle("Настройки")
