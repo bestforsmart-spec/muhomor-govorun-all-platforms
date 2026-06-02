@@ -26,20 +26,6 @@ struct SettingsView: View {
                                 Label("Локальный голос", systemImage: "waveform")
                                     .font(.headline)
 
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Голос")
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-
-                                    Picker("Голос", selection: $config.voiceGender) {
-                                        ForEach(VoiceGender.allCases) { gender in
-                                            Text(gender.title)
-                                                .tag(gender)
-                                        }
-                                    }
-                                    .pickerStyle(.segmented)
-                                }
-
                                 HStack(spacing: 8) {
                                     Image(systemName: "globe")
                                         .font(.caption.weight(.semibold))

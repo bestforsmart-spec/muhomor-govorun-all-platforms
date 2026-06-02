@@ -39,7 +39,7 @@ final class TTSService: NSObject {
 
     private static func voice(for text: String, config: AppConfig) -> AVSpeechSynthesisVoice? {
         let languageCode = detectedLanguageCode(from: text)
-        return voice(languageCode: languageCode, gender: config.voiceGender)
+        return voice(languageCode: languageCode)
             ?? AVSpeechSynthesisVoice(language: config.voiceLanguage)
             ?? AVSpeechSynthesisVoice(language: "ru-RU")
     }
@@ -63,24 +63,11 @@ final class TTSService: NSObject {
         return "ru"
     }
 
-    private static func voice(languageCode: String, gender: VoiceGender) -> AVSpeechSynthesisVoice? {
+    private static func voice(languageCode: String) -> AVSpeechSynthesisVoice? {
         let normalizedCode = languageCode.lowercased()
-        let voices = AVSpeechSynthesisVoice.speechVoices().filter { voice in
+        return AVSpeechSynthesisVoice.speechVoices().first { voice in
             let language = voice.language.lowercased()
             return language == normalizedCode || language.hasPrefix("\(normalizedCode)-")
-        }
-
-        return voices.first { $0.gender == gender.speechVoiceGender } ?? voices.first
-    }
-}
-
-private extension VoiceGender {
-    var speechVoiceGender: AVSpeechSynthesisVoiceGender {
-        switch self {
-        case .female:
-            return .female
-        case .male:
-            return .male
         }
     }
 }
