@@ -17,7 +17,7 @@ struct ContentView: View {
                     .font(.body)
                     .overlay {
                         if text.isEmpty {
-                            Text("Вставьте текст из буфера или используйте Поделиться -> Озвучить в другом приложении.")
+                            Text("Текст для озвучки")
                                 .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                                 .padding(.top, 8)
@@ -51,9 +51,7 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
                     .font(.footnote)
 
-                Text("Важно: iOS не разрешает стороннему приложению добавить кнопку прямо рядом с Copy/Paste во всех приложениях. Рабочий системный путь: выделить текст -> Поделиться -> Озвучить.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                Spacer(minLength: 0)
             }
             .padding()
             .navigationTitle("Мухомор - Говорун")

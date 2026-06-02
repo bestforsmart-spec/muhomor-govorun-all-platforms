@@ -84,8 +84,8 @@ final class ShareViewController: UIViewController {
                 continue
             }
             provider.loadItem(forTypeIdentifier: type, options: nil) { [weak self] item, _ in
+                let text = (item as? String) ?? (item as? NSAttributedString)?.string ?? ""
                 DispatchQueue.main.async {
-                    let text = (item as? String) ?? (item as? NSAttributedString)?.string ?? ""
                     self?.applySharedText(text)
                 }
             }
