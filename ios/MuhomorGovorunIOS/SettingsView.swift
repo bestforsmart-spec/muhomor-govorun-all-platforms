@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var config: AppConfig
     @Environment(\.dismiss) private var dismiss
+    @Environment(TTSService.self) private var ttsService
 
     var body: some View {
         NavigationStack {
@@ -15,6 +16,19 @@ struct SettingsView: View {
                     Slider(value: $config.pitch, in: 0.8...1.2) {
                         Text("Тон")
                     }
+                }
+
+                Section {
+                    Button("Проверить голос") {
+                        ttsService.speakLocal(text: "Проверка голоса Мухомор Говорун", config: config)
+                    }
+
+                    Button("Стоп") {
+                        ttsService.stop()
+                    }
+
+                    Text(ttsService.status)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section {

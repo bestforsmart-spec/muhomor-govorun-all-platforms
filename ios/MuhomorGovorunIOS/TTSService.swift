@@ -11,6 +11,12 @@ final class TTSService: NSObject {
         let text = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         stop()
+        do {
+            try activatePlaybackSession()
+        } catch {
+            status = "Ошибка аудио: \(error.localizedDescription)"
+            return
+        }
         status = "Озвучиваю локально"
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: config.voiceLanguage)
@@ -22,5 +28,11 @@ final class TTSService: NSObject {
     func stop() {
         localSynth.stopSpeaking(at: .immediate)
         status = "Остановлено"
+    }
+
+    private func activatePlaybackSession() throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        try session.setActive(true)
     }
 }

@@ -111,6 +111,12 @@ final class ShareViewController: UIViewController {
             return
         }
         synth.stopSpeaking(at: .immediate)
+        do {
+            try activatePlaybackSession()
+        } catch {
+            statusLabel.text = "Ошибка аудио: \(error.localizedDescription)"
+            return
+        }
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "ru-RU")
         utterance.rate = 0.49
@@ -126,5 +132,11 @@ final class ShareViewController: UIViewController {
     @objc private func done() {
         synth.stopSpeaking(at: .immediate)
         extensionContext?.completeRequest(returningItems: nil)
+    }
+
+    private func activatePlaybackSession() throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        try session.setActive(true)
     }
 }
