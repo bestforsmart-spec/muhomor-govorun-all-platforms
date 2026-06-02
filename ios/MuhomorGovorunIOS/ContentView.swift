@@ -46,6 +46,9 @@ struct ContentView: View {
                     },
                     stop: {
                         ttsService.stop()
+                    },
+                    dismissKeyboard: {
+                        isComposerFocused = false
                     }
                 )
             }
@@ -57,18 +60,6 @@ struct ContentView: View {
             .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
                 withAnimation(.easeOut(duration: 0.20)) {
                     keyboardLift = 0
-                }
-            }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-
-                    Button {
-                        isComposerFocused = false
-                    } label: {
-                        Label("Свернуть", systemImage: "keyboard.chevron.compact.down")
-                    }
-                    .font(.subheadline.weight(.semibold))
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -281,12 +272,17 @@ private struct BottomControlDock: View {
     let paste: () -> Void
     let speak: () -> Void
     let stop: () -> Void
+    let dismissKeyboard: () -> Void
 
     var body: some View {
         let palette = ShromPalette(colorScheme)
         let isKeyboardVisible = keyboardLift > 0
 
         VStack(spacing: 10) {
+            if isKeyboardVisible {
+                KeyboardDismissChip(action: dismissKeyboard)
+            }
+
             ActionBar(
                 isTextEmpty: isTextEmpty,
                 paste: paste,
@@ -306,6 +302,34 @@ private struct BottomControlDock: View {
             Rectangle()
                 .fill(palette.stroke)
                 .frame(height: 1)
+        }
+    }
+}
+
+private struct KeyboardDismissChip: View {
+    @Environment(\.colorScheme) private var colorScheme
+    let action: () -> Void
+
+    var body: some View {
+        let palette = ShromPalette(colorScheme)
+
+        HStack {
+            Spacer()
+
+            Button(action: action) {
+                Label("Свернуть", systemImage: "keyboard.chevron.compact.down")
+                    .font(.caption.weight(.semibold))
+                    .lineLimit(1)
+                    .foregroundStyle(palette.secondaryButtonText)
+                    .padding(.horizontal, 12)
+                    .frame(height: 34)
+            }
+            .background(palette.cardStrong, in: Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(palette.subtleStroke, lineWidth: 1)
+            }
+            .accessibilityLabel("Свернуть клавиатуру")
         }
     }
 }
