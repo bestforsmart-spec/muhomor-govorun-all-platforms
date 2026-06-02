@@ -22,8 +22,6 @@ struct ContentView: View {
 
                     ThemeBanner()
 
-                    NatureStickerCard()
-
                     ComposerCard(text: $text)
 
                     ActionBar(
@@ -189,44 +187,14 @@ private struct ThemeBanner: View {
             .resizable()
             .scaledToFill()
             .frame(maxWidth: .infinity)
-            .frame(height: 88)
+            .frame(height: 84)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(palette.stroke, lineWidth: 1)
             }
-            .shadow(color: .black.opacity(palette.isDark ? 0.36 : 0.12), radius: 16, y: 8)
+            .shadow(color: .black.opacity(palette.isDark ? 0.28 : 0.10), radius: 12, y: 6)
             .accessibilityHidden(true)
-    }
-}
-
-private struct NatureStickerCard: View {
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        let palette = ShromPalette(colorScheme)
-
-        ZStack(alignment: .center) {
-            UnevenRoundedRectangle(cornerRadii: .init(topLeading: 8, bottomLeading: 8, bottomTrailing: 8, topTrailing: 8))
-                .fill(palette.card)
-
-            HStack {
-                Image("WeAreNature")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 118)
-                    .shadow(color: .black.opacity(palette.isDark ? 0.32 : 0.10), radius: 10, y: 4)
-                    .accessibilityLabel("We are nature")
-
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 28)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(palette.stroke, lineWidth: 1)
-        }
-        .frame(height: 126)
     }
 }
 
@@ -254,7 +222,7 @@ private struct ComposerCard: View {
                 TextEditor(text: $text)
                     .font(.body)
                     .scrollContentBackground(.hidden)
-                    .frame(minHeight: 286)
+                    .frame(minHeight: 396)
                     .padding(.horizontal, -4)
                     .padding(.vertical, -8)
 
