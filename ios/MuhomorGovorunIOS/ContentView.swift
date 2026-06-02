@@ -8,7 +8,6 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var isKeyboardVisible = false
     @FocusState private var isComposerFocused: Bool
-
     private var isTextEmpty: Bool {
         text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -62,22 +61,36 @@ struct ContentView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    KeyboardAccessoryBar(
-                        isTextEmpty: isTextEmpty,
-                        paste: {
-                            text = UIPasteboard.general.string ?? text
-                        },
-                        speak: {
-                            ttsService.speakLocal(text: text, config: config)
-                        },
-                        stop: {
-                            ttsService.stop()
-                        },
-                        dismissKeyboard: {
-                            isComposerFocused = false
-                        }
-                    )
+                ToolbarItemGroup(placement: .keyboard) {
+                    Button {
+                        text = UIPasteboard.general.string ?? text
+                    } label: {
+                        Image(systemName: "doc.on.clipboard")
+                    }
+                    .accessibilityLabel("Буфер")
+
+                    Spacer()
+
+                    Button {
+                        ttsService.speakLocal(text: text, config: config)
+                    } label: {
+                        Label("Озвучить", systemImage: "speaker.wave.2.fill")
+                    }
+                    .disabled(isTextEmpty)
+
+                    Button {
+                        ttsService.stop()
+                    } label: {
+                        Image(systemName: "stop.fill")
+                    }
+                    .accessibilityLabel("Стоп")
+
+                    Button {
+                        isComposerFocused = false
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down")
+                    }
+                    .accessibilityLabel("Свернуть клавиатуру")
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -103,7 +116,6 @@ struct ShromPalette {
                 Color(red: 0.05, green: 0.09, blue: 0.09)
             ]
         }
-
         return [
             Color(red: 0.98, green: 0.96, blue: 0.92),
             Color(red: 0.91, green: 0.94, blue: 0.93),
@@ -316,54 +328,6 @@ private struct BottomControlDock: View {
     }
 }
 
-private struct KeyboardAccessoryBar: View {
-    @Environment(\.colorScheme) private var colorScheme
-    let isTextEmpty: Bool
-    let paste: () -> Void
-    let speak: () -> Void
-    let stop: () -> Void
-    let dismissKeyboard: () -> Void
-
-    var body: some View {
-        let palette = ShromPalette(colorScheme)
-        let width = max(UIScreen.main.bounds.width - 20, 320)
-
-        HStack(spacing: 8) {
-            Button(action: paste) {
-                Label("Буфер", systemImage: "doc.on.clipboard")
-            }
-            .buttonStyle(KeyboardSecondaryButtonStyle())
-
-            Button(action: speak) {
-                Label("Озвучить", systemImage: "speaker.wave.2.fill")
-            }
-            .buttonStyle(KeyboardPrimaryButtonStyle())
-            .disabled(isTextEmpty)
-            .opacity(isTextEmpty ? 0.46 : 1)
-
-            Button(action: stop) {
-                Label("Стоп", systemImage: "stop.fill")
-            }
-            .buttonStyle(KeyboardSecondaryButtonStyle())
-
-            Button(action: dismissKeyboard) {
-                Image(systemName: "keyboard.chevron.compact.down")
-                    .font(.system(size: 17, weight: .semibold))
-                    .frame(width: 42, height: 44)
-            }
-            .foregroundStyle(palette.secondaryButtonText)
-            .background(palette.cardStrong, in: RoundedRectangle(cornerRadius: 8))
-            .overlay {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(palette.subtleStroke, lineWidth: 1)
-            }
-            .accessibilityLabel("Свернуть клавиатуру")
-        }
-        .frame(width: width)
-        .padding(.vertical, 6)
-    }
-}
-
 private struct ActionBar: View {
     let isTextEmpty: Bool
     let paste: () -> Void
@@ -413,48 +377,6 @@ private struct StatusPill: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
         .background(palette.cardStrong, in: Capsule())
-    }
-}
-
-private struct KeyboardPrimaryButtonStyle: ButtonStyle {
-    @Environment(\.colorScheme) private var colorScheme
-
-    func makeBody(configuration: Configuration) -> some View {
-        let palette = ShromPalette(colorScheme)
-
-        configuration.label
-            .font(.subheadline.weight(.semibold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.76)
-            .foregroundStyle(palette.primaryButtonText)
-            .frame(maxWidth: .infinity, minHeight: 44)
-            .background(
-                palette.primaryButton.opacity(configuration.isPressed ? 0.82 : 1),
-                in: RoundedRectangle(cornerRadius: 8)
-            )
-    }
-}
-
-private struct KeyboardSecondaryButtonStyle: ButtonStyle {
-    @Environment(\.colorScheme) private var colorScheme
-
-    func makeBody(configuration: Configuration) -> some View {
-        let palette = ShromPalette(colorScheme)
-
-        configuration.label
-            .font(.subheadline.weight(.semibold))
-            .lineLimit(1)
-            .minimumScaleFactor(0.74)
-            .foregroundStyle(palette.secondaryButtonText)
-            .frame(maxWidth: .infinity, minHeight: 44)
-            .background(
-                palette.cardStrong.opacity(configuration.isPressed ? 0.72 : 1),
-                in: RoundedRectangle(cornerRadius: 8)
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(palette.subtleStroke, lineWidth: 1)
-            }
     }
 }
 
