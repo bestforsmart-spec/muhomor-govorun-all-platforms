@@ -15,8 +15,14 @@ struct ContentView: View {
             ZStack {
                 PremiumBackground()
 
-                VStack(spacing: 18) {
-                    PremiumHeader()
+                VStack(spacing: 12) {
+                    BrandTopBar {
+                        showingSettings = true
+                    }
+
+                    ThemeBanner()
+
+                    NatureStickerCard()
 
                     ComposerCard(text: $text)
 
@@ -38,19 +44,10 @@ struct ContentView: View {
                     Spacer(minLength: 0)
                 }
                 .padding(.horizontal, 18)
-                .padding(.top, 14)
+                .padding(.top, 12)
                 .padding(.bottom, 18)
             }
-            .navigationTitle("ShromSpeak")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                Button {
-                    showingSettings = true
-                } label: {
-                    Image(systemName: "slider.horizontal.3")
-                }
-                .accessibilityLabel("Настройки")
-            }
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingSettings) {
                 SettingsView(config: $config)
             }
@@ -144,53 +141,92 @@ private struct PremiumBackground: View {
     }
 }
 
-private struct PremiumHeader: View {
+private struct BrandTopBar: View {
+    @Environment(\.colorScheme) private var colorScheme
+    let openSettings: () -> Void
+
+    var body: some View {
+        let palette = ShromPalette(colorScheme)
+
+        HStack(spacing: 12) {
+            Text("SHROOMSPEAK 🍄")
+                .font(.system(size: 34, weight: .black, design: .rounded))
+                .foregroundStyle(palette.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.62)
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+                .background(palette.cardStrong, in: RoundedRectangle(cornerRadius: 8))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(palette.stroke, lineWidth: 1)
+                }
+
+            Button(action: openSettings) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 25, weight: .semibold))
+                    .foregroundStyle(palette.primaryText)
+                    .frame(width: 56, height: 56)
+            }
+            .background(palette.cardStrong, in: Circle())
+            .overlay {
+                Circle()
+                    .stroke(palette.stroke, lineWidth: 1)
+            }
+            .accessibilityLabel("Настройки")
+        }
+    }
+}
+
+private struct ThemeBanner: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        let palette = ShromPalette(colorScheme)
+        let imageName = palette.isDark ? "ShroomSpeakBannerDark" : "ShroomSpeakBannerLight"
+
+        Image(imageName)
+            .resizable()
+            .scaledToFill()
+            .frame(maxWidth: .infinity)
+            .frame(height: 88)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(palette.stroke, lineWidth: 1)
+            }
+            .shadow(color: .black.opacity(palette.isDark ? 0.36 : 0.12), radius: 16, y: 8)
+            .accessibilityHidden(true)
+    }
+}
+
+private struct NatureStickerCard: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         let palette = ShromPalette(colorScheme)
 
-        HStack(alignment: .center, spacing: 16) {
-            Image("MuhomorShield")
-                .resizable()
-                .scaledToFill()
-                .frame(width: 92, height: 92)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(palette.subtleStroke, lineWidth: 1)
-                }
-                .shadow(color: .black.opacity(0.18), radius: 18, y: 10)
-                .accessibilityHidden(true)
+        ZStack(alignment: .center) {
+            UnevenRoundedRectangle(cornerRadii: .init(topLeading: 8, bottomLeading: 8, bottomTrailing: 8, topTrailing: 8))
+                .fill(palette.card)
 
-            VStack(alignment: .leading, spacing: 7) {
-                Text("ShromSpeak")
-                    .font(.system(size: 28, weight: .semibold, design: .rounded))
-                    .foregroundStyle(palette.primaryText)
+            HStack {
+                Image("WeAreNature")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 118)
+                    .shadow(color: .black.opacity(palette.isDark ? 0.32 : 0.10), radius: 10, y: 4)
+                    .accessibilityLabel("We are nature")
 
-                Text("Офлайн-голос для выделенного текста")
-                    .font(.subheadline)
-                    .foregroundStyle(palette.secondaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark.shield.fill")
-                    Text("Локально")
-                }
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(palette.success)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(palette.cardStrong, in: Capsule())
+                Spacer(minLength: 0)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 28)
         }
-        .padding(14)
-        .background(palette.card, in: RoundedRectangle(cornerRadius: 8))
         .overlay {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(palette.stroke, lineWidth: 1)
         }
+        .frame(height: 126)
     }
 }
 
@@ -218,7 +254,7 @@ private struct ComposerCard: View {
                 TextEditor(text: $text)
                     .font(.body)
                     .scrollContentBackground(.hidden)
-                    .frame(minHeight: 230)
+                    .frame(minHeight: 286)
                     .padding(.horizontal, -4)
                     .padding(.vertical, -8)
 
