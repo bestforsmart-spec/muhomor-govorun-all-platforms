@@ -1,4 +1,4 @@
-package ru.muhomorspace.govorun;
+package com.shromspeak.app;
 
 import android.app.Activity;
 import android.content.ClipData;
