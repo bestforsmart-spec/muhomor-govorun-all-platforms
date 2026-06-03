@@ -1,4 +1,4 @@
-# Мухомор - Говорун для Android
+# ShromSpeak для Android
 
 Нативный Android MVP с тремя режимами озвучки:
 
@@ -17,7 +17,20 @@
 
 Откройте папку `android/` в Android Studio и соберите `app`.
 
-Локально в этой Codex-сессии APK не собран, потому что в окружении нет Java Runtime и Gradle. Проект подготовлен как Android Studio/Gradle source project.
+Или соберите из терминала:
+
+```bash
+cd android
+gradle assembleDebug
+```
+
+Готовый debug APK появляется здесь:
+
+```text
+android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Debug APK уже подписан debug-ключом Android и подходит для ручной установки на телефон. Для Google Play нужна отдельная release-сборка с production signing key.
 
 ## Ключи
 

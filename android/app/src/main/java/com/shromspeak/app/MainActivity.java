@@ -73,7 +73,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         root.setBackgroundColor(0xFFF7F7F3);
 
         TextView title = new TextView(this);
-        title.setText("Мухомор - Говорун");
+        title.setText("ShromSpeak");
         title.setTextSize(24);
         title.setTextColor(0xFF141412);
         root.addView(title);
